@@ -43,6 +43,7 @@ import {
 } from '../../../../shared/constants/app-state';
 import { detectNfts } from '../../../store/actions';
 import { AccountOverviewCommonProps } from './common';
+import DefiList from '../../app/assets/defi/defi-list';
 
 export type AccountOverviewTabsProps = AccountOverviewCommonProps & {
   showTokens: boolean;
@@ -165,6 +166,17 @@ export const AccountOverviewTabs = ({
             </Box>
           </Tab>
         )}
+
+        <Tab
+          name="DeFi"
+          tabKey="defi"
+          data-testid="account-overview__defi-tab"
+          {...tabProps}
+        >
+          <Box marginTop={2}>
+            <DefiList />
+          </Box>
+        </Tab>
 
         {showNfts && (
           <Tab
