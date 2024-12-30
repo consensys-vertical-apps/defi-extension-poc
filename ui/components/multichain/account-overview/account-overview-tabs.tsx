@@ -49,6 +49,7 @@ export type AccountOverviewTabsProps = AccountOverviewCommonProps & {
   showTokens: boolean;
   showTokensLinks?: boolean;
   showNfts: boolean;
+  showDefi: boolean;
   showActivity: boolean;
 };
 
@@ -62,6 +63,7 @@ export const AccountOverviewTabs = ({
   showTokensLinks,
   showNfts,
   showActivity,
+  showDefi,
 }: AccountOverviewTabsProps) => {
   const history = useHistory();
   const t = useI18nContext();
@@ -103,17 +105,17 @@ export const AccountOverviewTabs = ({
   const activitySupportDisplayStyle =
     defaultHomeActiveTabName === 'activity'
       ? {
-          justifyContent: JustifyContent.center,
-          paddingLeft: 0,
-          marginTop: 4,
-          marginBottom: 4,
-        }
+        justifyContent: JustifyContent.center,
+        paddingLeft: 0,
+        marginTop: 4,
+        marginBottom: 4,
+      }
       : {
-          justifyContent: JustifyContent.flexStart,
-          paddingLeft: 4,
-          marginTop: 0,
-          marginBottom: 4,
-        };
+        justifyContent: JustifyContent.flexStart,
+        paddingLeft: 4,
+        marginTop: 0,
+        marginBottom: 4,
+      };
   ///: END:ONLY_INCLUDE_IF
 
   ///: BEGIN:ONLY_INCLUDE_IF(build-main)
@@ -167,16 +169,18 @@ export const AccountOverviewTabs = ({
           </Tab>
         )}
 
-        <Tab
-          name="DeFi"
-          tabKey="defi"
-          data-testid="account-overview__defi-tab"
-          {...tabProps}
-        >
-          <Box marginTop={2}>
-            <DefiList />
-          </Box>
-        </Tab>
+        {showDefi && (
+          <Tab
+            name="DeFi"
+            tabKey="defi"
+            data-testid="account-overview__defi-tab"
+            {...tabProps}
+          >
+            <Box marginTop={2}>
+              <DefiList />
+            </Box>
+          </Tab>
+        )}
 
         {showNfts && (
           <Tab

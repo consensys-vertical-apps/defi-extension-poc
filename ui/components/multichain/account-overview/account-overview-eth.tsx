@@ -10,6 +10,7 @@ export const AccountOverviewEth = (props: AccountOverviewEthProps) => {
     <AccountOverviewLayout
       showTokens={true}
       showNfts={true}
+      showDefi={true}
       showActivity={true}
       {...props}
     >
