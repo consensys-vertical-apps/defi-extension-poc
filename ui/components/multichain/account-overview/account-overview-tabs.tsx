@@ -43,7 +43,7 @@ import {
 } from '../../../../shared/constants/app-state';
 import { detectNfts } from '../../../store/actions';
 import { AccountOverviewCommonProps } from './common';
-import DefiList from '../../app/assets/defi/defi-list';
+import { DefiList } from '../../app/assets/defi/defi-list';
 
 export type AccountOverviewTabsProps = AccountOverviewCommonProps & {
   showTokens: boolean;

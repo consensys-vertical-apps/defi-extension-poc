@@ -4764,6 +4764,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@metamask-institutional/defi-sdk@npm:^0.9.1":
+  version: 0.9.1
+  resolution: "@metamask-institutional/defi-sdk@npm:0.9.1"
+  dependencies:
+    zod: "npm:^3.22.4"
+  checksum: 10/3640633ec92b63256576a7c236a3484ec3f5b598e923515cda56fe3a1903f5b1ceee45e8fa68457a974df1ab594c667f9a44d8817af95a6ffec0885c3cb974d0
+  languageName: node
+  linkType: hard
+
 "@metamask-institutional/extension@npm:^0.3.28":
   version: 0.3.28
   resolution: "@metamask-institutional/extension@npm:0.3.28"
@@ -26512,6 +26521,7 @@ __metadata:
     "@material-ui/core": "npm:^4.11.0"
     "@metamask-institutional/custody-controller": "npm:^0.3.0"
     "@metamask-institutional/custody-keyring": "npm:^2.1.1"
+    "@metamask-institutional/defi-sdk": "npm:^0.9.1"
     "@metamask-institutional/extension": "npm:^0.3.28"
     "@metamask-institutional/institutional-features": "npm:^1.3.6"
     "@metamask-institutional/portfolio-dashboard": "npm:^1.4.1"
@@ -38204,6 +38214,13 @@ __metadata:
   version: 0.1.0
   resolution: "yocto-queue@npm:0.1.0"
   checksum: 10/f77b3d8d00310def622123df93d4ee654fc6a0096182af8bd60679ddcdfb3474c56c6c7190817c84a2785648cdee9d721c0154eb45698c62176c322fb46fc700
+  languageName: node
+  linkType: hard
+
+"zod@npm:^3.22.4":
+  version: 3.24.1
+  resolution: "zod@npm:3.24.1"
+  checksum: 10/54e25956495dec22acb9399c168c6ba657ff279801a7fcd0530c414d867f1dcca279335e160af9b138dd70c332e17d548be4bc4d2f7eaf627dead50d914fec27
   languageName: node
   linkType: hard
 

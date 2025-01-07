@@ -133,6 +133,7 @@ const generateClassNames = memoize(
   (styleDeclaration, value) => `${styleDeclaration}${value}`,
 );
 
+
 export const Box: BoxComponent = React.forwardRef(
   <C extends React.ElementType = 'div'>(
     {
