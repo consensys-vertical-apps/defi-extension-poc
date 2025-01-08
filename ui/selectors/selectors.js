@@ -3025,6 +3025,45 @@ export function getSnapsInstallPrivacyWarningShown(state) {
   return snapsInstallPrivacyWarningShown;
 }
 
+/**
+ * To retrieve the list of tokens detected across all chains.
+ *
+ * @param {*} state
+ * @returns list of token objects on all networks
+ */
+export function getAllDefiPositionsForSelectedAddress(state) {
+  console.log('CALLED SELECTOR DEFI')
+  const completedOnboarding = getCompletedOnboarding(state);
+
+  if (!completedOnboarding) {
+    return {};
+  }
+
+  // const { address: selectedAddress } = getSelectedInternalAccount(state);
+  const selectedAddress = '0x08e82c749fef839ff97e7d17de29b4fdd87b04d7';
+
+  const groupedPositions = state.metamask.groupedPositions;
+
+  console.log('groupedPositions', groupedPositions);
+
+  return groupedPositions;
+
+  // const tokensByChainId = Object.entries(
+  //   state.metamask.allGroupedPositions || {},
+  // ).reduce((acc, [chainId, chainTokens]) => {
+  //   const positionsForAddress = chainTokens[selectedAddress];
+  //   if (positionsForAddress) {
+  //     acc[chainId] = positionsForAddress.map((token) => ({
+  //       ...token,
+  //       chainId,
+  //     }));
+  //   }
+  //   return acc;
+  // }, {});
+
+  // return tokensByChainId;
+}
+
 ///: BEGIN:ONLY_INCLUDE_IF(keyring-snaps)
 export function getsnapsAddSnapAccountModalDismissed(state) {
   const { snapsAddSnapAccountModalDismissed } = state.metamask;

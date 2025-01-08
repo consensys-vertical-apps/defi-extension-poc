@@ -321,6 +321,16 @@ export const getNftContracts = (state) => {
   return allNftContracts?.[selectedAddress]?.[chainId] ?? [];
 };
 
+export const getDefiPositions = (state) => {
+  const {
+    metamask: { allGroupedPositions },
+  } = state;
+  const { address: selectedAddress } = getSelectedInternalAccount(state);
+  const { chainId } = getProviderConfig(state);
+  // return allGroupedPositions?.[selectedAddress]?.[chainId] ?? [];
+  return allGroupedPositions?.['0x08e82c749fef839ff97e7d17de29b4fdd87b04d7']?.[chainId] ?? [];
+};
+
 export function getBlockGasLimit(state) {
   return state.metamask.currentBlockGasLimit;
 }

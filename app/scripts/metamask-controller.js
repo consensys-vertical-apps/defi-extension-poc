@@ -325,6 +325,7 @@ import createMetamaskMiddleware from './lib/createMetamaskMiddleware';
 import { hardwareKeyringBuilderFactory } from './lib/hardware-keyring-builder-factory';
 import EncryptionPublicKeyController from './controllers/encryption-public-key';
 import AppMetadataController from './controllers/app-metadata';
+import { DefiListController } from './controllers/defi-list-controller';
 
 import {
   CaveatFactories,
@@ -719,6 +720,26 @@ export default class MetamaskController extends EventEmitter {
       state: initState.TokensController,
       provider: this.provider,
       messenger: tokensControllerMessenger,
+      chainId: this.#getGlobalChainId(),
+    });
+
+    const defiListControllerMessenger = this.controllerMessenger.getRestricted({
+      name: 'DefiListController',
+      allowedActions: [
+        'NetworkController:getNetworkClientById',
+        'AccountsController:getSelectedAccount',
+        'AccountsController:getAccount',
+      ],
+      allowedEvents: [
+        'NetworkController:stateChange',
+        'NetworkController:networkDidChange',
+        'AccountsController:selectedEvmAccountChange',
+      ],
+    });
+    this.defiListController = new DefiListController({
+      state: initState.DefiListController,
+      provider: this.provider,
+      messenger: defiListControllerMessenger,
       chainId: this.#getGlobalChainId(),
     });
 
