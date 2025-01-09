@@ -12,6 +12,7 @@ import { useSelector } from 'react-redux';
 import {
   getAllDefiPositionsForSelectedAddress,
   getAllTokens,
+  getCurrentNetwork,
   getSelectedAccount,
 } from '../../../../selectors';
 import Spinner from '../../../ui/spinner';
@@ -59,6 +60,8 @@ export const DefiList = () => {
   const defiPositions: GroupedPositionsResponse[] = useSelector(
     getAllDefiPositionsForSelectedAddress,
   );
+  const currentNetwork = useSelector(getCurrentNetwork);
+  const chainId = parseInt(currentNetwork?.chainId.replace('0x', ''), 16);
 
   console.log('defiPositions', defiPositions);
 
@@ -79,11 +82,13 @@ export const DefiList = () => {
       ) : (
         <>
           <AssetListControlBar showTokensLinks={true} />
-          {defiPositions.map((defiProtocolData) => (
-            <DefiProtocolListItem
-              key={`${defiProtocolData.chainId}-${defiProtocolData.protocolId}`}
-              chain={`0x${defiProtocolData.chainId.toString(16)}`}
-              protocolName={defiProtocolData.positions[0]!.name}
+          {defiPositions
+            .filter((position) => position.chainId === chainId)
+            .map((defiProtocolData) => (
+              <DefiProtocolListItem
+                key={`${defiProtocolData.chainId}-${defiProtocolData.protocolId}`}
+                chain={`0x${defiProtocolData.chainId.toString(16)}`}
+                protocolName={defiProtocolData.positions[0]!.name}
               iconUrl={defiProtocolData.positions[0]!.iconUrl}
               aggrigatedValues={defiProtocolData.aggregatedValues}
               positions={defiProtocolData}
