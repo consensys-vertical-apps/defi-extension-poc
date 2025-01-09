@@ -139,6 +139,10 @@ export const SENTRY_BACKGROUND_STATE = {
     unapprovedDecryptMsgs: false,
     unapprovedDecryptMsgCount: true,
   },
+  DefiListController: {
+    positions: false,
+    accountPositions: false,
+  },
   EncryptionPublicKeyController: {
     unapprovedEncryptionPublicKeyMsgs: false,
     unapprovedEncryptionPublicKeyMsgCount: true,

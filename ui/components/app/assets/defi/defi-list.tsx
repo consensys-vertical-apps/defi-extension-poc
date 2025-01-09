@@ -11,51 +11,71 @@ import { DefiProtocolListItem } from './defi-list-item';
 import { useSelector } from 'react-redux';
 import {
   getAllDefiPositionsForSelectedAddress,
+  getAllTokens,
   getSelectedAccount,
 } from '../../../../selectors';
 import Spinner from '../../../ui/spinner';
+import { Box } from '@material-ui/core';
+import {
+  AlignItems,
+  BorderColor,
+  FlexDirection,
+} from '../../../../helpers/constants/design-system';
+import { Display } from '../../../../helpers/constants/design-system';
 
-const defiPositions: GroupedPositionsResponse[] = defiResponse;
+// const defiPositions: GroupedPositionsResponse[] = defiResponse;
 
 export const DefiList = () => {
-  const selectedAccount = useSelector(getSelectedAccount);
-  const [defiPositions, setDefiPositions] = useState<
-    GroupedPositionsResponse[]
-  >([]);
-  const [isLoading, setIsLoading] = useState(false);
+  // const selectedAccount = useSelector(getSelectedAccount);
+  // const [defiPositions, setDefiPositions] = useState<
+  //   GroupedPositionsResponse[]
+  // >([]);
+  // const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    console.log('selectedAccount', selectedAccount);
+  // useEffect(() => {
+  //   console.log('selectedAccount', selectedAccount);
 
-    if (selectedAccount?.address) {
-      setIsLoading(true);
-      const defiSdk = new DefiSdk({
-        apiUrl: 'https://defi-services.metamask-institutional.io/defi-data',
-      });
+  //   if (selectedAccount?.address) {
+  //     setIsLoading(true);
+  //     const defiSdk = new DefiSdk({
+  //       apiUrl: 'https://defi-services.metamask-institutional.io/defi-data',
+  //     });
 
-      defiSdk
-        .getPositions({
-          userAddress: '0x08e82c749fef839ff97e7d17de29b4fdd87b04d7',
-          // userAddress: selectedAccount.address,
-        })
-        .then((positions) => {
-          setDefiPositions(groupPositionsByProtocolAndChain(positions));
-          setIsLoading(false);
-        });
-    } else {
-      setDefiPositions([]);
-      setIsLoading(false);
-    }
-  }, [selectedAccount?.address]);
+  //     defiSdk
+  //       .getPositions({
+  //         userAddress: '0x08e82c749fef839ff97e7d17de29b4fdd87b04d7',
+  //         // userAddress: selectedAccount.address,
+  //       })
+  //       .then((positions) => {
+  //         setDefiPositions(groupPositionsByProtocolAndChain(positions));
+  //         setIsLoading(false);
+  //       });
+  //   } else {
+  //     setDefiPositions([]);
+  //     setIsLoading(false);
+  //   }
+  // }, [selectedAccount?.address]);
 
-  const defiPositions2 = useSelector(getAllDefiPositionsForSelectedAddress);
+  const defiPositions: GroupedPositionsResponse[] = useSelector(
+    getAllDefiPositionsForSelectedAddress,
+  );
 
-  console.log('defiPositions2', defiPositions2);
+  console.log('defiPositions', defiPositions);
 
   return (
     <>
-      {isLoading ? (
-        <Spinner />
+      {!defiPositions ? (
+        <Box
+          paddingTop={6}
+          paddingBottom={6}
+          marginBottom={4}
+          marginTop={4}
+          display={Display.Flex}
+          alignItems={AlignItems.center}
+          flexDirection={FlexDirection.Column}
+        >
+          <Spinner />
+        </Box>
       ) : (
         <>
           <AssetListControlBar showTokensLinks={true} />

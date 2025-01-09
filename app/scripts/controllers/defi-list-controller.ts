@@ -1,12 +1,13 @@
-import { Contract } from '@ethersproject/contracts';
-import { Web3Provider } from '@ethersproject/providers';
-import { DefiSdk, groupPositionsByProtocolAndChain, GroupedPositionsResponse } from '@metamask-institutional/defi-sdk';
+import {
+  DefiSdk,
+  groupPositionsByProtocolAndChain,
+  GroupedPositionsResponse,
+} from '@metamask-institutional/defi-sdk';
 import type {
   AccountsControllerGetAccountAction,
   AccountsControllerGetSelectedAccountAction,
   AccountsControllerSelectedEvmAccountChangeEvent,
 } from '@metamask/accounts-controller';
-import type { AddApprovalRequest } from '@metamask/approval-controller';
 import type {
   RestrictedControllerMessenger,
   ControllerGetStateAction,
@@ -15,7 +16,6 @@ import type {
 import { BaseController } from '@metamask/base-controller';
 import type { InternalAccount } from '@metamask/keyring-internal-api';
 import type {
-  NetworkClientId,
   NetworkControllerGetNetworkClientByIdAction,
   NetworkControllerNetworkDidChangeEvent,
   NetworkControllerStateChangeEvent,
@@ -36,15 +36,14 @@ type GroupedPositionsResponseFixed = GroupedPositionsResponse & {
  * @type DefiListControllerState
  *
  * Defi list controller state
- * @property groupedPositions - List of positions associated with the active network and address pair
- * @property allGroupedPositions - Object containing positions by network and account
+ * @property accountPositions - Object containing positions by account
  */
 export type DefiListControllerState = {
-  positions: GroupedPositionsResponseFixed[];
+  accountPositions: { [key: string]: GroupedPositionsResponseFixed[] | null };
 };
 
 const metadata = {
-  positions: {
+  accountPositions: {
     persist: true,
     anonymous: false,
   },
@@ -52,9 +51,8 @@ const metadata = {
 
 const controllerName = 'DefiListController';
 
-export type DefiListControllerActions =
-  | DefiListControllerGetStateAction;
-  // | TokensControllerAddDetectedTokensAction;
+export type DefiListControllerActions = DefiListControllerGetStateAction;
+// | TokensControllerAddDetectedTokensAction;
 
 export type DefiListControllerGetStateAction = ControllerGetStateAction<
   typeof controllerName,
@@ -99,7 +97,7 @@ export type DefiListControllerMessenger = RestrictedControllerMessenger<
 
 export const getDefaultDefiListState = (): DefiListControllerState => {
   return {
-    positions: [],
+    accountPositions: {},
   };
 };
 
@@ -196,23 +194,12 @@ export class DefiListController extends BaseController<
    * @param networkState.selectedNetworkClientId - The ID of the currently
    * selected network client.
    */
-   async #onNetworkDidChange({ selectedNetworkClientId }: NetworkState) {
-    const selectedNetworkClient = this.messagingSystem.call(
-      'NetworkController:getNetworkClientById',
-      selectedNetworkClientId,
-    );
-    console.log('onNetworkDidChange', selectedNetworkClient);
-    const { positions } = this.state;
-    const { chainId } = selectedNetworkClient.configuration;
-    this.#abortController.abort();
-    this.#abortController = new AbortController();
-    this.#chainId = chainId;
-
-    const positions = await this.#getGroupedPositions()
-
-    this.update((state) => {
-      state.groupedPositions = allGroupedPositions[chainId]?.[selectedAddress] || [];
-    });
+  async #onNetworkDidChange({ selectedNetworkClientId }: NetworkState) {
+    console.log('onNetworkDidChange', selectedNetworkClientId);
+    const selectedAddress = this.#getSelectedAddress();
+    if (selectedAddress) {
+      await this.#updateAccountPositions(selectedAddress);
+    }
   }
 
   /**
@@ -220,20 +207,11 @@ export class DefiListController extends BaseController<
    * @param _ - The network state.
    * @param patches - An array of patch operations performed on the network state.
    */
-  #onNetworkStateChange(_: NetworkState, patches: Patch[]) {
+  async #onNetworkStateChange(_: NetworkState, patches: Patch[]) {
     console.log('onNetworkStateChange');
-    // Remove state for deleted networks
-    for (const patch of patches) {
-      if (
-        patch.op === 'remove' &&
-        patch.path[0] === 'networkConfigurationsByChainId'
-      ) {
-        const removedChainId = patch.path[1] as Hex;
-
-        this.update((state) => {
-          delete state.allGroupedPositions[removedChainId];
-        });
-      }
+    const selectedAddress = this.#getSelectedAddress();
+    if (selectedAddress) {
+      await this.#updateAccountPositions(selectedAddress);
     }
   }
 
@@ -243,54 +221,10 @@ export class DefiListController extends BaseController<
    */
   async #onSelectedAccountChange(selectedAccount: InternalAccount) {
     console.log('onSelectedAccountChange', selectedAccount);
-    const { allGroupedPositions } = this.state;
     this.#selectedAccountId = selectedAccount.id;
 
-    const accountPositions = await this.#getGroupedPositions();
-
-    console.log('xxx', accountPositions);
-
-    this.update((state) => {
-      // state.groupedPositions = allGroupedPositions[this.#chainId]?.[selectedAccount.address] ?? [];
-      state.groupedPositions = accountPositions;
-    });
+    await this.#updateAccountPositions(selectedAccount.address);
   }
-
-  #getProvider(networkClientId?: NetworkClientId): Web3Provider {
-    return new Web3Provider(
-      networkClientId
-        ? this.messagingSystem.call(
-            'NetworkController:getNetworkClientById',
-            networkClientId,
-          ).provider
-        : this.#provider,
-    );
-  }
-
-
-  #getAddressOrSelectedAddress(address: string | undefined): string {
-    if (address) {
-      return address;
-    }
-
-    return this.#getSelectedAddress();
-  }
-
-  #isInteractingWithWallet(address: string | undefined) {
-    const selectedAddress = this.#getSelectedAddress();
-
-    return selectedAddress === address;
-  }
-
-  /**
-   * Removes all tokens from the ignored list.
-   */
-  // clearIgnoredTokens() {
-  //   this.update((state) => {
-  //     state.ignoredTokens = [];
-  //     state.allIgnoredTokens = {};
-  //   });
-  // }
 
   #getSelectedAccount() {
     return this.messagingSystem.call('AccountsController:getSelectedAccount');
@@ -314,17 +248,40 @@ export class DefiListController extends BaseController<
     });
   }
 
-  async #getGroupedPositions() {
-    const selectedAccount = this.#getSelectedAddress();
+  async #updateAccountPositions(accountAddress: string) {
+    console.log('UPDATING STATE', { accountAddress });
 
+    if (!accountAddress) {
+      return;
+    }
+
+    this.update((state) => {
+      state.accountPositions[accountAddress] = null;
+    });
+
+    // const accountPositions = await this.#getGroupedPositions(accountAddress);
+    // TODO Remove this hack once we have proper accounts
+    const accountPositions = await this.#getGroupedPositions(
+      /[0-7]/.test(accountAddress.slice(-1).toLowerCase())
+        ? '0x08e82c749fef839ff97e7d17de29b4fdd87b04d7'
+        : '0xaa62cf7caaf0c7e50deaa9d5d0b907472f00b258',
+    );
+
+    console.log('UPDATED STATE', { accountPositions });
+
+    this.update((state) => {
+      state.accountPositions[accountAddress] = accountPositions;
+    });
+  }
+
+  async #getGroupedPositions(accountAddress: string) {
     const defiSdk = new DefiSdk({
       apiUrl: 'https://defi-services.metamask-institutional.io/defi-data',
     });
 
     const positions = await defiSdk.getPositions({
-      userAddress: '0x08e82c749fef839ff97e7d17de29b4fdd87b04d7',
-      // userAddress: selectedAccount,
-    })
+      userAddress: accountAddress,
+    });
 
     const groupedPositions = groupPositionsByProtocolAndChain(positions);
 

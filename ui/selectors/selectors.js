@@ -3032,36 +3032,17 @@ export function getSnapsInstallPrivacyWarningShown(state) {
  * @returns list of token objects on all networks
  */
 export function getAllDefiPositionsForSelectedAddress(state) {
-  console.log('CALLED SELECTOR DEFI')
   const completedOnboarding = getCompletedOnboarding(state);
-
   if (!completedOnboarding) {
-    return {};
+    return undefined;
   }
 
-  // const { address: selectedAddress } = getSelectedInternalAccount(state);
-  const selectedAddress = '0x08e82c749fef839ff97e7d17de29b4fdd87b04d7';
+  const { address: selectedAddress } = getSelectedInternalAccount(state);
 
-  const groupedPositions = state.metamask.groupedPositions;
+  const allPositions = state.metamask.accountPositions;
+  const accountPositions = allPositions?.[selectedAddress];
 
-  console.log('groupedPositions', groupedPositions);
-
-  return groupedPositions;
-
-  // const tokensByChainId = Object.entries(
-  //   state.metamask.allGroupedPositions || {},
-  // ).reduce((acc, [chainId, chainTokens]) => {
-  //   const positionsForAddress = chainTokens[selectedAddress];
-  //   if (positionsForAddress) {
-  //     acc[chainId] = positionsForAddress.map((token) => ({
-  //       ...token,
-  //       chainId,
-  //     }));
-  //   }
-  //   return acc;
-  // }, {});
-
-  // return tokensByChainId;
+  return accountPositions;
 }
 
 ///: BEGIN:ONLY_INCLUDE_IF(keyring-snaps)

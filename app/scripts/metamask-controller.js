@@ -2598,6 +2598,7 @@ export default class MetamaskController extends EventEmitter {
       NotificationServicesPushController:
         this.notificationServicesPushController,
       RemoteFeatureFlagController: this.remoteFeatureFlagController,
+      DefiListController: this.defiListController,
       ...resetOnRestartStore,
     });
 
@@ -2654,6 +2655,7 @@ export default class MetamaskController extends EventEmitter {
         NotificationServicesPushController:
           this.notificationServicesPushController,
         RemoteFeatureFlagController: this.remoteFeatureFlagController,
+        DefiListController: this.defiListController,
         ...resetOnRestartStore,
       },
       controllerMessenger: this.controllerMessenger,
